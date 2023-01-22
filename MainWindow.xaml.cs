@@ -44,7 +44,7 @@ namespace SjecišteDvaPravca
             TextBoxOrdinate1.Text = InitialValue.ToString();
             TextBoxOrdinate2.Text = InitialValue.ToString();
             LinesIntersection = Line.Intersection(line1, line2);
-            DisplayLinesIntersectionPoint();
+            CalculateInstersectionPointAndDrawGraph();
         }
 
         /// <summary>
@@ -57,11 +57,15 @@ namespace SjecišteDvaPravca
         /// <param name="e"></param>
         private void TextBox_TextChangedTextBoxK1(object sender, TextChangedEventArgs e)
         {
-            if (!Double.TryParse(TextBoxK1.Text, out line1.gradient)) {
+            if (TextBoxK1.Text == "-") {
+                line1.gradient = 0;
+            }
+            else if (!Double.TryParse(TextBoxK1.Text, out line1.gradient))
+            {
                 TextBoxK1.Text = TextBoxK1_Text;
                 return;
             }
-            DisplayLinesIntersectionPoint();
+            CalculateInstersectionPointAndDrawGraph();
         }
 
         /// <summary>
@@ -70,7 +74,7 @@ namespace SjecišteDvaPravca
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ValidateNumericTextBoxInputTextBoxK1(object sender, TextCompositionEventArgs e)
+        private void SaveCurrentValueTextBoxBoxK1(object sender, TextCompositionEventArgs e)
         {
             TextBoxK1_Text = TextBoxK1.Text;
         }
@@ -85,12 +89,16 @@ namespace SjecišteDvaPravca
         /// <param name="e"></param>
         private void TextBox_TextChangedTextBoxK2(object sender, TextChangedEventArgs e)
         {
-            if (!Double.TryParse(TextBoxK2.Text, out line2.gradient))
+            if (TextBoxK2.Text == "-")
+            {
+                line2.gradient = 0;
+            }
+            else if (!Double.TryParse(TextBoxK2.Text, out line2.gradient))
             {
                 TextBoxK2.Text = TextBoxK2_Text;
                 return;
             }
-            DisplayLinesIntersectionPoint();
+            CalculateInstersectionPointAndDrawGraph();
         }
 
 
@@ -100,7 +108,7 @@ namespace SjecišteDvaPravca
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ValidateNumericTextBoxInputTextBoxK2(object sender, TextCompositionEventArgs e)
+        private void SaveCurrentValueTextBoxBoxK2(object sender, TextCompositionEventArgs e)
         {
             TextBoxK2_Text = TextBoxK2.Text;
         }
@@ -116,12 +124,16 @@ namespace SjecišteDvaPravca
         /// <param name="e"></param>
         private void TextBox_TextChangedTextBoxOrdinate1(object sender, TextChangedEventArgs e)
         {
-            if (!Double.TryParse(TextBoxOrdinate1.Text, out line1.ordinate_intersection))
+            if (TextBoxOrdinate1.Text == "-")
+            {
+                line1.ordinate_intersection = 0;
+            }
+            else if (!Double.TryParse(TextBoxOrdinate1.Text, out line1.ordinate_intersection))
             {
                 TextBoxOrdinate1.Text = TextBoxOrdinate1_Text;
                 return;
             }
-            DisplayLinesIntersectionPoint();
+            CalculateInstersectionPointAndDrawGraph();
         }
 
         /// <summary>
@@ -130,7 +142,7 @@ namespace SjecišteDvaPravca
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ValidateNumericTextBoxInputTextOrdinate1(object sender, TextCompositionEventArgs e)
+        private void SaveCurrentValueTextBoxOrdinate1(object sender, TextCompositionEventArgs e)
         {
             TextBoxOrdinate1_Text = TextBoxOrdinate1.Text;
         }
@@ -146,12 +158,16 @@ namespace SjecišteDvaPravca
         /// <param name="e"></param>
         private void TextBox_TextChangedTextBoxOrdinate2(object sender, TextChangedEventArgs e)
         {
-            if (!Double.TryParse(TextBoxOrdinate2.Text, out line2.ordinate_intersection))
+            if (TextBoxOrdinate2.Text == "-")
+            {
+                line2.ordinate_intersection = 0;
+            }
+            else if(!Double.TryParse(TextBoxOrdinate2.Text, out line2.ordinate_intersection))
             {
                 TextBoxOrdinate2.Text = TextBoxOrdinate2_Text;
                 return;
             }
-            DisplayLinesIntersectionPoint();
+            CalculateInstersectionPointAndDrawGraph();
         }
 
         /// <summary>
@@ -160,48 +176,103 @@ namespace SjecišteDvaPravca
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ValidateNumericTextBoxInputTextOrdinate2(object sender, TextCompositionEventArgs e)
+        private void SaveCurrentValueTextBoxOrdinate2(object sender, TextCompositionEventArgs e)
         {
             TextBoxOrdinate2_Text = TextBoxOrdinate2.Text;
         }
 
-
-        private void DisplayLinesIntersectionPoint() {
-                LinesIntersection = Line.Intersection(line1, line2);
-                
-                if(LinesIntersection.x == null && LinesIntersection.y == null) {
-                    Xlabel.Content = "Pravci su paralelni";
-                    Ylabel.Content = "";
-                    LabelTextX.Visibility = Visibility.Hidden;
-                    LabelTextY.Visibility = Visibility.Hidden;
-                    ButtonGraph.Visibility = Visibility.Hidden;
-                }
-                else
-                {
-                    LabelTextX.Visibility = Visibility.Visible;
-                    LabelTextY.Visibility = Visibility.Visible;
-                    ButtonGraph.Visibility = Visibility.Visible;
-                Xlabel.Content = LinesIntersection.x.ToString();
-                    Ylabel.Content = LinesIntersection.y.ToString();
-                }
-                if (GraphWindow != null && GraphWindow.IsLoaded)
-                {
-                    GraphWindow.Plot(line1, line2);
-                }
-            
-        }
-
+        /// <summary>
+        /// Button event instantiate new Graph window if needed and brings it to the front.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            if(GraphWindow == null || !GraphWindow.IsLoaded)
+            if (GraphWindow == null || !GraphWindow.IsLoaded)
             {
                 GraphWindow = new Graph();
                 GraphWindow.Show();
             }
             GraphWindow.Activate();
-            GraphWindow.Plot(line1, line2);
+            CalculateInstersectionPointAndDrawGraph();
         }
 
+        /// <summary>
+        /// Function calculats intersection of Line1 and Line 2.
+        /// If GraphWindow is oppened it draws Line1 and Line2 on graph.
+        /// </summary>
+        private void CalculateInstersectionPointAndDrawGraph()
+        {
+            LinesIntersection = Line.Intersection(line1, line2);
 
+            if (LinesIntersection.x == null && LinesIntersection.y == null)
+            {
+                LabelParallel.Visibility = Visibility.Visible;
+                Xlabel.Content = "";
+                Ylabel.Content = "";
+                LabelTextX.Visibility = Visibility.Hidden;
+                LabelTextY.Visibility = Visibility.Hidden;
+                ButtonGraph.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                LabelParallel.Visibility = Visibility.Hidden;
+                LabelTextX.Visibility = Visibility.Visible;
+                LabelTextY.Visibility = Visibility.Visible;
+                ButtonGraph.Visibility = Visibility.Visible;
+                Xlabel.Content = LinesIntersection.x.ToString();
+                Ylabel.Content = LinesIntersection.y.ToString();
+            }
+
+            if (GraphWindow != null && GraphWindow.IsLoaded)
+            {
+                GraphWindow.PlotLinesIntersection(line1, line2);
+            }
+        }
+
+        /// <summary>
+        /// Event function that calls select text in the text box when text box is
+        /// double clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectEverythignInTextBoxOnDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SelectText(sender);
+        }
+
+        /// <summary>
+        /// Event function that calls select text in the text box when text box is
+        /// selected with keyboard keys (e.g. Tab key).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectEverythignInTextBoxKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            SelectText(sender);
+        }
+
+        /// <summary>
+        /// Function that selects whole text in text box if object sender is instance of 
+        /// TextBox.
+        /// </summary>
+        /// <param name="sender">Object which is expected to instance of textbox</param>
+        void SelectText(object sender)
+        {
+            TextBox tb = (sender as TextBox);
+
+            if (tb != null)
+            {
+                tb.SelectAll();
+            }
+        }
+
+        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (GraphWindow != null && GraphWindow.IsLoaded)
+            {
+                GraphWindow.Close();
+            }
+        }
     }
 }

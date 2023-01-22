@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Graph" Height="802" Width="800">
     <Grid x:Name="Grid1">
-        <WPF:Chart HorizontalAlignment="Left" VerticalAlignment="Top">
+        <WPF:Chart x:Name="Chart" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid x:Name="lines">
                 <WPF:CartesianSizeColorMarkerGraph x:Name="CartesianGraph" Margin="0,0,-32,-28" AspectRatio="-4"/>
             </Grid>

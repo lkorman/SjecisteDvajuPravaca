@@ -21,7 +21,7 @@ namespace SjecišteDvaPravca
     /// </summary>
     public partial class Graph : Window
     {
-        double graph_scale = 10;
+        double xscale = 0.5;
         LineGraph LineGraph1;
         LineGraph LineGraph2;
         LineGraph abscissa; 
@@ -33,7 +33,13 @@ namespace SjecišteDvaPravca
             InitializeComponent();
         }
 
-        public void Plot(Line line1, Line line2)
+        /// <summary>
+        /// Function that draws coordinate system and provided lines close 
+        /// to their intersection (+/-intersection.x*(1+xscale)).
+        /// </summary>
+        /// <param name="line1">First line to draw</param>
+        /// <param name="line2">Second line to draw</param>
+        public void PlotLinesIntersection(Line line1, Line line2)
         {
 
             // Izmijeniti crtanje grafa na način da se umjesto računjanja niza točaka izračunaju samo početne i kranje točke
@@ -44,34 +50,29 @@ namespace SjecišteDvaPravca
                 return;
             }
             
-            double[] x = new double[(int)(Grid1.ActualWidth / 2)- (int)(Grid1.ActualWidth / 2) % 2];
-
-            for (int i = 0; i < (x.Length)/2-1; i++)
+            double[] x = { -(double)intersection.x * (1 + xscale), (double)intersection.x * (1 + xscale) };
+            //in case if intesrction.x is zero
+            if (x[0] == 0)
             {
-                x[i] = ((double)intersection.x) - (double)(x.Length/2 - i) / x.Length * graph_scale;
+                x[0] = -xscale;
+                x[1] = xscale;
             }
-
-            x[x.Length/2 - 1] = (double)intersection.x;
-
-            for (int i = x.Length/2; i < x.Length; i++)
-            {
-                x[i] = ((double)intersection.x) + (double)(i - x.Length/2) / x.Length * graph_scale;
-            }
-
+            
             if (lines.Children.Count > 0) {
                 lines.Children.Remove(LineGraph1);
                 lines.Children.Remove(LineGraph2);
                 lines.Children.Remove(abscissa);
                 lines.Children.Remove(ordinate);
             }
-
-            var y1 = x.Select(v => v * line1.gradient + line1.ordinate_intersection).ToArray();
-            var y2 = x.Select(v => v * line2.gradient + line2.ordinate_intersection).ToArray();
+            
+            var y1 = x.Select(v => line1.GetY(v)).ToArray();
+            var y2 = x.Select(v => line2.GetY(v)).ToArray();
+            
 
             var ymin = y1.Min() >= y2.Min() ? y2.Min() : y1.Min();
             var ymax = y1.Max() <= y2.Max() ? y2.Max() : y1.Max();
             
-
+            //Ordinate and Abscissa
             ordinate = new LineGraph();
             lines.Children.Add(ordinate);
             ordinate.Stroke = new SolidColorBrush(Color.FromRgb(0, 0, 0));
@@ -91,8 +92,7 @@ namespace SjecišteDvaPravca
             abscissa.Plot(x_abscissa, y_abscissa);
 
 
-            
-
+            //Lines
             LineGraph1 = new LineGraph();
             lines.Children.Add(LineGraph1);
             LineGraph1.Stroke = new SolidColorBrush(Color.FromRgb(255, 0, 0));
@@ -113,13 +113,5 @@ namespace SjecišteDvaPravca
             CartesianGraph.PlotOriginY = ymin;
             CartesianGraph.PlotHeight = ymax - ymin;
         }
-
-
-        private void CartesianGraph_MouseMove(object sender, MouseEventArgs e)
-        {
-            e.Handled = true;
-        }
     }
-
-
 }
